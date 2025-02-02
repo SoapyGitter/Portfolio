@@ -1,14 +1,14 @@
+'use client'
 import { FC } from 'react';
 import { motion } from 'framer-motion';
 import { Project } from '../types';
 import { fadeInUp } from '../animations';
 
-interface ProjectCardProps extends Project {}
 
-const ProjectCard: FC<ProjectCardProps> = ({ title, description, link, technologies }) => {
+const ProjectCard: FC<Project> = ({ title, description, technologies }) => {
   return (
     <motion.div 
-      className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col h-full"
+      className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col flex-1 basis-80 flex-grow"
       initial="initial"
       whileInView="animate"
       viewport={{ once: true }}

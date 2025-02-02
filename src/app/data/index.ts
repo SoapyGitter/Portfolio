@@ -1,30 +1,37 @@
-import { Project, Experience, Education } from '../types'
+import { Project, Experience } from '../types'
 
 export const projects: Project[] = [
   {
     title: 'Forest Friend',
     description: 'Volunteer web application to plant trees in Georgia online or physically',
     link: '#',
-    technologies: ['React', 'Node.js', 'MongoDB']
+    technologies: ['Angular', 'SEO', 'Angular Universal']
   },
   {
     title: 'GetBot',
     description: 'Google Chrome AI Companion Extension',
     link: '#',
-    technologies: ['JavaScript', 'Chrome API', 'OpenAI']
+    technologies: ['NextJS', 'Chrome API', 'OpenAI']
   },
-  {
-    title: 'Car Auction',
-    description: 'B2B car auction platform with real-time/blind bidding, detailed listings, advanced search features to streamline transactions for car dealerships',
-    link: '#',
-    technologies: ['React', 'TypeScript', 'Node.js']
-  },
+  
   {
     title: 'HR Soft',
     description: 'Soft which is responsible for improving Quality of work for Human Resources',
     link: '#',
-    technologies: ['React', 'TypeScript', '.NET']
-  }
+    technologies: ['Angular', 'TypeScript', "C#", ".Net", "SQL"]
+  },
+  {
+    title: 'Bono App',
+    description: 'Application for merging all Loyalty points into one space',
+    link: '#',
+    technologies: ['React Native', 'Expo', "C#", ".Net", "SQL", "React"]
+  },
+  {
+    title: 'Car Auction',
+    description: 'B2B/B2C car auction platform with real-time/blind bidding, detailed listings, advanced search features to streamline transactions for car dealerships',
+    link: '#',
+    technologies: ['Angular', "C#", ".Net", "MongoDB", "Atlas Search"]
+  },
 ];
 export const experiences: Experience[] = [
   {

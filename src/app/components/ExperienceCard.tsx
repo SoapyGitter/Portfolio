@@ -1,11 +1,12 @@
+'use client'
+
 import { FC } from 'react';
 import { motion } from 'framer-motion';
 import { Experience } from '../types';
 import { fadeInUp } from '../animations';
 
-interface ExperienceCardProps extends Experience {}
 
-const ExperienceCard: FC<ExperienceCardProps> = ({ 
+const ExperienceCard: FC<Experience> = ({ 
   title, 
   company, 
   location, 
