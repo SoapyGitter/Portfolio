@@ -1,52 +1,57 @@
 "use client";
 
-import { FC, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { FC, useState } from "react";
 import { Github, Mail } from "lucide-react";
 import Header from "./components/Header";
 import ProjectCard from "./components/ProjectCard";
 import ExperienceCard from "./components/ExperienceCard";
 import SkillTag from "./components/SkillTag";
 import { projects, skills, experiences } from "./data";
-import GameBackground from "./components/GameBackground";
+import { AnimatePresence, motion } from "framer-motion";
+import Card from "./components/shared/Card";
+import Title from "./components/shared/Title";
+import Text from "./components/shared/Text";
+
 
 const Home: FC = () => {
-  const [mounted, setMounted] = useState(false);
+  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const filteredProjects = selectedSkill
+    ? projects.filter(project => 
+        project.technologies?.some(tech => 
+          tech.toLowerCase() === selectedSkill.toLowerCase()
+        )
+      )
+    : projects;
 
-  console.log(mounted);
+  const handleSkillClick = (skill: string) => {
+    setSelectedSkill(currentSkill => 
+      currentSkill === skill ? null : skill
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 relative">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 relative">
       <Header />
-      <div className="relative">
-        {mounted && <GameBackground />}
-
+      <div className="relative pt-[180px] md:pt-[160px]">
         <main className="max-w-4xl mx-auto py-12 px-4">
           {/* About Section */}
           <section className="mb-12" id="about">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Profile</h2>
-            <p className="text-gray-600 leading-relaxed">
-              Experienced in software development and web/mobile app
+            <Title>Profile</Title>
+            <Text
+              text="Experienced in software development and web/mobile app
               enhancement, I bring 4 years of full stack expertise in C#, .NET
               Core, Angular, React, NextJS, ViteJS, and React Native. My
               proactive approach to improving business logic and optimizing
-              applications has driven impactful results.
-            </p>
+              applications has driven impactful results."
+              className="text-gray-600 dark:text-gray-300 leading-relaxed"
+              speed={10}
+            />
           </section>
 
           {/* Skills Section */}
           <section className="mb-12">
-            <motion.h2
-              className="text-2xl font-bold text-gray-900 mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              Skills
-            </motion.h2>
+            <Title>Skills</Title>
             <motion.div
               className="flex flex-wrap gap-2"
               initial="hidden"
@@ -61,26 +66,44 @@ const Home: FC = () => {
               }}
             >
               {skills.map((skill, index) => (
-                <SkillTag key={index} skill={skill} />
+                <SkillTag 
+                  key={index} 
+                  skill={skill}
+                  isSelected={selectedSkill === skill}
+                  onClick={() => handleSkillClick(skill)}
+                />
               ))}
             </motion.div>
           </section>
 
           {/* Projects Section */}
           <section className="mb-12" id="projects">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Projects</h2>
-            <div className="flex flex-wrap gap-4">
-              {projects.map((project, index) => (
-                <ProjectCard key={index} {...project} />
-              ))}
+            <div className="flex items-center justify-between mb-4">
+              <Title>Projects</Title>
+              {selectedSkill && (
+                <button
+                  onClick={() => setSelectedSkill(null)}
+                  className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
+                >
+                  Clear filter
+                </button>
+              )}
             </div>
+            <motion.div 
+              className="flex flex-wrap gap-4"
+              layout
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredProjects.map((project, index) => (
+                  <ProjectCard key={project.title} {...project} />
+                ))}
+              </AnimatePresence>
+            </motion.div>
           </section>
 
           {/* Experience Section */}
-          <section className="mb-12 flex flex-col gap-4" id="experience">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Experience
-            </h2>
+          <Title>Experience</Title>
+          <section className="mb-12 flex flex-wrap gap-4" id="experience">
             {experiences.map((experience, index) => (
               <ExperienceCard key={index} {...experience} />
             ))}
@@ -88,26 +111,29 @@ const Home: FC = () => {
 
           {/* Education Section */}
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Education</h2>
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-              <h3 className="text-xl font-semibold text-gray-900">
+            <Title>Education</Title>
+
+            <Card>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Bachelor&apos;s in Computer Science
               </h3>
-              <p className="text-indigo-600 font-medium">
+              <p className="text-indigo-600 dark:text-indigo-400 font-medium">
                 Georgian Technical University • Tbilisi
               </p>
-              <p className="text-gray-500 text-sm">Sep 2022 — Present</p>
-            </div>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                Sep 2022 — Present
+              </p>
+            </Card>
           </section>
         </main>
 
         {/* Footer */}
-        <footer className="bg-gradient-to-r from-indigo-900 to-blue-900 text-white mt-12">
+        <footer className="bg-gradient-to-r from-indigo-600 to-blue-500 dark:from-indigo-900 dark:to-blue-900 text-white mt-12">
           <div className="max-w-4xl mx-auto py-8 px-4 flex justify-between items-center">
             <p>&copy; {new Date().getFullYear()} Nikoloz Shekiladze</p>
             <div className="flex space-x-4">
               <a
-                href="https://github.com"
+                href="https://github.com/SoapyGitter"
                 className="hover:text-indigo-200 transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"

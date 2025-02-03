@@ -1,12 +1,15 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { ThemeProvider } from "./providers/ThemeProvider";
+import ScrollLinked from "./components/global/ScrollLinked";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Nikoloz Shekiladze - Web/Mobile Developer',
-  description: 'Portfolio of Nikoloz Shekiladze, a full-stack developer specializing in web and mobile development',
+  title: "Nikoloz Shekiladze - Web/Mobile Developer",
+  description:
+    "Portfolio of Nikoloz Shekiladze, a full-stack developer specializing in web and mobile development",
 };
 
 export default function RootLayout({
@@ -18,7 +21,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <div id="root">
-          {children}
+          <ThemeProvider>
+            <ScrollLinked></ScrollLinked>
+            {children}
+          </ThemeProvider>
         </div>
       </body>
     </html>
