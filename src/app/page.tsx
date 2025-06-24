@@ -4,6 +4,7 @@ import { FC, useState } from "react";
 import { Github, Mail } from "lucide-react";
 import Header from "./components/Header";
 import ProjectCard from "./components/ProjectCard";
+import ProjectSection from "./components/ProjectSection";
 import ExperienceCard from "./components/ExperienceCard";
 import SkillTag from "./components/SkillTag";
 import { projects, skills, experiences } from "./data";
@@ -34,6 +35,7 @@ const Home: FC = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 relative">
       <Header />
       <div className="relative pt-[180px] md:pt-[160px]">
+        {/* Container for regular sections */}
         <main className="max-w-4xl mx-auto py-12 px-4">
           {/* About Section */}
           <section className="mb-12" id="about">
@@ -75,11 +77,19 @@ const Home: FC = () => {
               ))}
             </motion.div>
           </section>
+        </main>
 
-          {/* Projects Section */}
-          <section className="mb-12" id="projects">
+        {/* 3D Projects Carousel Section - Full width */}
+        <div className="mb-12" id="projects">
+          <ProjectSection />
+        </div>
+
+        {/* Container for remaining sections */}
+        <main className="max-w-4xl mx-auto px-4">
+          {/* Traditional Projects Grid (Optional) */}
+          <section className="mb-12">
             <div className="flex items-center justify-between mb-4">
-              <Title>Projects</Title>
+              <Title>All Projects</Title>
               {selectedSkill && (
                 <button
                   onClick={() => setSelectedSkill(null)}
@@ -94,7 +104,7 @@ const Home: FC = () => {
               layout
             >
               <AnimatePresence mode="popLayout">
-                {filteredProjects.map((project, index) => (
+                {filteredProjects.map((project) => (
                   <ProjectCard key={project.title} {...project} />
                 ))}
               </AnimatePresence>
