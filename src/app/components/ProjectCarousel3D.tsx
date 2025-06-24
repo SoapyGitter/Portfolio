@@ -45,7 +45,6 @@ export default function ProjectCarousel3D({
   const mouseRef = useRef(new THREE.Vector2(0, 0));
   const animationFrameRef = useRef<number | null>(null);
   const targetRotationY = useRef(0);
-  const lastInteractionTime = useRef(0);
   const autoRotateIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const [focusedIndex, setFocusedIndex] = useState(0);
@@ -542,7 +541,6 @@ export default function ProjectCarousel3D({
       camera.lookAt(0, 5, 0);
 
       let minDistance = Infinity;
-      let closestMesh: THREE.Mesh | null = null;
 
       cardMeshesRef.current.forEach((mesh, index) => {
         const isFocused = index === stateRef.current.focusedIndex;
@@ -570,7 +568,6 @@ export default function ProjectCarousel3D({
         const distance = worldPosition.distanceTo(camera.position);
         if (distance < minDistance) {
           minDistance = distance;
-          closestMesh = mesh;
         }
         if (index === stateRef.current.focusedIndex) {
           (mesh.material as THREE.MeshStandardMaterial).opacity = 1.0;
@@ -651,22 +648,6 @@ export default function ProjectCarousel3D({
     mouseRef.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
   }, []);
 
-  const handleWheel = useCallback(
-    (event: React.WheelEvent) => {
-      const now = Date.now();
-      if (now - lastInteractionTime.current < 800) return;
-      lastInteractionTime.current = now;
-
-      if (event.deltaY > 0) {
-        setFocusedIndex((prev) => (prev + 1) % projects.length);
-      } else {
-        setFocusedIndex(
-          (prev) => (prev - 1 + projects.length) % projects.length
-        );
-      }
-    },
-    [projects.length]
-  );
 
   const handleClick = useCallback((event: React.MouseEvent) => {
     if (!mountRef.current || !cameraRef.current) return;

@@ -3,12 +3,11 @@
 import { FC, useState } from "react";
 import { Github, Mail } from "lucide-react";
 import Header from "./components/Header";
-import ProjectCard from "./components/ProjectCard";
 import ProjectSection from "./components/ProjectSection";
 import ExperienceCard from "./components/ExperienceCard";
 import SkillTag from "./components/SkillTag";
-import { projects, skills, experiences } from "./data";
-import { AnimatePresence, motion } from "framer-motion";
+import { skills, experiences } from "./data";
+import {  motion } from "framer-motion";
 import Card from "./components/shared/Card";
 import Title from "./components/shared/Title";
 import Text from "./components/shared/Text";
@@ -16,14 +15,6 @@ import Text from "./components/shared/Text";
 
 const Home: FC = () => {
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
-
-  const filteredProjects = selectedSkill
-    ? projects.filter(project => 
-        project.technologies?.some(tech => 
-          tech.toLowerCase() === selectedSkill.toLowerCase()
-        )
-      )
-    : projects;
 
   const handleSkillClick = (skill: string) => {
     setSelectedSkill(currentSkill => 
