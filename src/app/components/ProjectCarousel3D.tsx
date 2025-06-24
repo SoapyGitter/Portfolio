@@ -491,6 +491,24 @@ export default function ProjectCarousel3D({
       let closestMesh: THREE.Mesh | null = null;
 
       cardMeshesRef.current.forEach((mesh, index) => {
+        const isFocused = index === stateRef.current.focusedIndex;
+        const targetRadius = isFocused ? radius * 1.5 : radius;
+
+        if (mesh.userData.currentRadius === undefined) {
+          mesh.userData.currentRadius = radius;
+        }
+
+        mesh.userData.currentRadius = THREE.MathUtils.lerp(
+          mesh.userData.currentRadius,
+          targetRadius,
+          0.05
+        );
+        
+        if (mesh.userData.angle !== undefined) {
+          mesh.position.x = Math.cos(mesh.userData.angle) * mesh.userData.currentRadius;
+          mesh.position.z = Math.sin(mesh.userData.angle) * mesh.userData.currentRadius;
+        }
+
         mesh.position.y = Math.sin(elapsedTime * 0.5 + index * 0.5) * 0.2;
         mesh.lookAt(camera.position);
         const worldPosition = new THREE.Vector3();
@@ -546,6 +564,7 @@ export default function ProjectCarousel3D({
     cardMeshesRef.current.forEach((mesh, index) => {
       // Position index 0 at the front (positive Z), others arranged clockwise
       const angle = (index / projects.length) * Math.PI * 2 + Math.PI / 2;
+      mesh.userData.angle = angle; // Store the angle
       mesh.position.x = Math.cos(angle) * radius;
       mesh.position.z = Math.sin(angle) * radius;
       mesh.position.y = 0;
@@ -659,7 +678,7 @@ export default function ProjectCarousel3D({
         <ChevronRight size={32} />
       </button>
 
-      <div
+      {/* <div
         className={`absolute bottom-20 left-1/2 transform -translate-x-1/2 z-20 text-center text-white px-4 pointer-events-none transition-opacity duration-500 w-full max-w-2xl ${
           isHovered ? "opacity-100" : "opacity-0"
         }`}
@@ -699,7 +718,7 @@ export default function ProjectCarousel3D({
               </div>
             )}
         </div>
-      </div>
+      </div> */}
 
       {/* Navigation dots */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex space-x-3">

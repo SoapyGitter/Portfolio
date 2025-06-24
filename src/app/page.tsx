@@ -36,13 +36,13 @@ const Home: FC = () => {
       <Header />
       <div className="relative pt-[180px] md:pt-[160px]">
         {/* Container for regular sections */}
-        <main className="max-w-4xl mx-auto py-12 px-4">
+        <main className="max-w-4xl mx-auto pt-12 pb-4 px-4">
           {/* About Section */}
           <section className="mb-12" id="about">
             <Title>Profile</Title>
             <Text
               text="Experienced in software development and web/mobile app
-              enhancement, I bring 4 years of full stack expertise in C#, .NET
+              enhancement, I bring 6 years of full stack expertise in C#, .NET
               Core, Angular, React, NextJS, ViteJS, and React Native. My
               proactive approach to improving business logic and optimizing
               applications has driven impactful results."
@@ -52,7 +52,7 @@ const Home: FC = () => {
           </section>
 
           {/* Skills Section */}
-          <section className="mb-12">
+          <section>
             <Title>Skills</Title>
             <motion.div
               className="flex flex-wrap gap-2"
@@ -87,7 +87,7 @@ const Home: FC = () => {
         {/* Container for remaining sections */}
         <main className="max-w-4xl mx-auto px-4">
           {/* Traditional Projects Grid (Optional) */}
-          <section className="mb-12">
+          {/* <section className="mb-12">
             <div className="flex items-center justify-between mb-4">
               <Title>All Projects</Title>
               {selectedSkill && (
@@ -109,7 +109,7 @@ const Home: FC = () => {
                 ))}
               </AnimatePresence>
             </motion.div>
-          </section>
+          </section> */}
 
           {/* Experience Section */}
           <Title>Experience</Title>
