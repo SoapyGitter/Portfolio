@@ -11,7 +11,7 @@ export const projects: Project[] = [
   {
     title: "GetBot",
     description: "Google Chrome AI Companion Extension",
-    link: "#",
+    link: "https://getbot.ai/",
     technologies: ["NextJS", "Chrome API", "TypeScript", "OpenAI"],
   },
 
@@ -25,7 +25,7 @@ export const projects: Project[] = [
   {
     title: "Bono App",
     description: "Application for merging all Loyalty points into one space",
-    link: "#",
+    link: "https://bonoapp.ge/",
     technologies: [
       "TypeScript",
       "React Native",

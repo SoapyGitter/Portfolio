@@ -194,33 +194,35 @@ export default function ProjectCarousel3D({
       }
 
       // Button
-      const buttonY = height - 65;
-      const buttonWidth = 150;
-      const buttonHeight = 40;
-      const borderRadius = 8;
+      if (project.link && project.link !== "#") {
+        const buttonY = height - 65;
+        const buttonWidth = 150;
+        const buttonHeight = 40;
+        const borderRadius = 8;
 
-      ctx.fillStyle = isActive ? "#3b82f6" : "#374151";
-      if (isActive) {
-        ctx.shadowColor = "#3b82f6";
-        ctx.shadowBlur = 15;
+        ctx.fillStyle = isActive ? "#3b82f6" : "#374151";
+        if (isActive) {
+          ctx.shadowColor = "#3b82f6";
+          ctx.shadowBlur = 15;
+        }
+        ctx.beginPath();
+        ctx.roundRect(
+          width / 2 - buttonWidth / 2,
+          buttonY,
+          buttonWidth,
+          buttonHeight,
+          borderRadius
+        );
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
+        ctx.shadowColor = "rgba(0,0,0,0.5)";
+        ctx.shadowBlur = 5;
+        ctx.fillText("View Project", width / 2, buttonY + 25);
+        ctx.shadowBlur = 0;
       }
-      ctx.beginPath();
-      ctx.roundRect(
-        width / 2 - buttonWidth / 2,
-        buttonY,
-        buttonWidth,
-        buttonHeight,
-        borderRadius
-      );
-      ctx.fill();
-      ctx.shadowBlur = 0;
-
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
-      ctx.shadowColor = "rgba(0,0,0,0.5)";
-      ctx.shadowBlur = 5;
-      ctx.fillText("View Project", width / 2, buttonY + 25);
-      ctx.shadowBlur = 0;
 
       return new THREE.CanvasTexture(canvas);
     },
@@ -317,15 +319,15 @@ export default function ProjectCarousel3D({
 
     const bloomEffect = new BloomEffect({
       blendFunction: BlendFunction.ADD,
-      intensity: 0.9,
+      intensity: 0.6,
       luminanceThreshold: 0.2,
       luminanceSmoothing: 0.3,
     });
     const bokehEffect = new BokehEffect({
       focus: 20,
-      dof: 0.001,
-      aperture: 0.0005,
-      maxBlur: 0.001,
+      dof: 0.002,
+      aperture: 0.001,
+      maxBlur: 0.008,
     });
     bokehEffectRef.current = bokehEffect;
     composer.addPass(new EffectPass(camera, bloomEffect, bokehEffect));
@@ -337,7 +339,7 @@ export default function ProjectCarousel3D({
     dirLight.castShadow = true;
     scene.add(dirLight);
 
-    const spot = new THREE.SpotLight(0x60a5fa, 80, 25, Math.PI / 7, 0.4, 1.5);
+    const spot = new THREE.SpotLight(0x60a5fa, 60, 25, Math.PI / 7, 0.4, 1.5);
     spot.castShadow = true;
     spotLightRef.current = spot;
     scene.add(spot);
@@ -365,14 +367,29 @@ export default function ProjectCarousel3D({
       return mesh;
     });
 
-    const particleCount = 5000;
+    const particleCount = 8000;
     const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+    const velocities = new Float32Array(particleCount * 3);
+    const baseColor = new THREE.Color(0x60a5fa);
+
     for (let i = 0; i < particleCount; i++) {
       positions.set(
         [
-          (Math.random() - 0.5) * 100,
-          (Math.random() - 0.5) * 100,
-          (Math.random() - 0.5) * 100,
+          (Math.random() - 0.5) * 150,
+          (Math.random() - 0.5) * 150,
+          (Math.random() - 0.5) * 150,
+        ],
+        i * 3
+      );
+      const mixedColor = baseColor.clone();
+      mixedColor.lerp(new THREE.Color(0xffffff), Math.random() * 0.5);
+      colors.set([mixedColor.r, mixedColor.g, mixedColor.b], i * 3);
+      velocities.set(
+        [
+          (Math.random() - 0.5) * 0.01,
+          (Math.random() - 0.5) * 0.03,
+          (Math.random() - 0.5) * 0.01,
         ],
         i * 3
       );
@@ -382,13 +399,21 @@ export default function ProjectCarousel3D({
       "position",
       new THREE.BufferAttribute(positions, 3)
     );
+    particleGeometry.setAttribute(
+      "color",
+      new THREE.BufferAttribute(colors, 3)
+    );
+    particleGeometry.setAttribute(
+      "velocity",
+      new THREE.BufferAttribute(velocities, 3)
+    );
     const particles = new THREE.Points(
       particleGeometry,
       new THREE.PointsMaterial({
-        color: 0x60a5fa,
-        size: 0.06,
+        size: 0.05,
         transparent: true,
-        opacity: 0.5,
+        opacity: 0.6,
+        vertexColors: true,
       })
     );
     particlesRef.current = particles;
@@ -398,6 +423,7 @@ export default function ProjectCarousel3D({
     const animate = () => {
       animationFrameRef.current = requestAnimationFrame(animate);
       const delta = clock.getDelta();
+      const elapsedTime = clock.getElapsedTime();
 
       const rotationY = carouselGroupRef.current!.rotation.y;
       const distanceToTarget = Math.abs(rotationY - targetRotationY.current);
@@ -412,7 +438,26 @@ export default function ProjectCarousel3D({
         carouselGroupRef.current!.rotation.y = targetRotationY.current;
       }
 
-      particlesRef.current!.rotation.y += delta * 0.01;
+      if (particlesRef.current) {
+        const p = particlesRef.current.geometry.attributes.position;
+        const v = particlesRef.current.geometry.attributes.velocity;
+        const positions = p.array as Float32Array;
+        const velocities = v.array as Float32Array;
+
+        for (let i = 0; i < positions.length; i += 3) {
+          positions[i] += velocities[i];
+          positions[i + 1] += velocities[i + 1];
+          positions[i + 2] += velocities[i + 2];
+
+          if (positions[i + 1] < -75) positions[i + 1] = 75;
+          if (positions[i + 1] > 75) positions[i + 1] = -75;
+
+          if (positions[i] < -75 || positions[i] > 75) velocities[i] *= -1;
+          if (positions[i + 2] < -75 || positions[i + 2] > 75)
+            velocities[i + 2] *= -1;
+        }
+        p.needsUpdate = true;
+      }
 
       camera.position.x +=
         (mouseRef.current.x * 0.5 - camera.position.x) * 0.05;
@@ -424,6 +469,7 @@ export default function ProjectCarousel3D({
       let closestMesh: THREE.Mesh | null = null;
 
       cardMeshesRef.current.forEach((mesh, index) => {
+        mesh.position.y = Math.sin(elapsedTime * 0.5 + index * 0.5) * 0.2;
         mesh.lookAt(camera.position);
         const worldPosition = new THREE.Vector3();
         mesh.getWorldPosition(worldPosition);
@@ -571,17 +617,17 @@ export default function ProjectCarousel3D({
 
       {/* Navigation Arrows */}
       <button
-        onClick={() => setFocusedIndex((prev) => (prev + 1) % projects.length)}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors"
-      >
-        <ChevronLeft size={32} />
-      </button>
-      <button
         onClick={() =>
           setFocusedIndex(
             (prev) => (prev - 1 + projects.length) % projects.length
           )
         }
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors"
+      >
+        <ChevronLeft size={32} />
+      </button>
+      <button
+        onClick={() => setFocusedIndex((prev) => (prev + 1) % projects.length)}
         className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors"
       >
         <ChevronRight size={32} />
