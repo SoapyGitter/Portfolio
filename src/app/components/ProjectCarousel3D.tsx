@@ -629,13 +629,17 @@ export default function ProjectCarousel3D({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 to-slate-800/50" />
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900/50 to-gray-800/50" />
 
       <div className="absolute inset-0 z-10 cursor-pointer"
         ref={mountRef}
         onMouseMove={handleMouseMove}
         onClick={handleClick}
       />
+
+      {/* Blur overlays to blend edges */}
+      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-gray-900 via-gray-900/80 to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-60 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-10 pointer-events-none" />
 
       {/* Navigation Arrows */}
       <button
@@ -660,7 +664,7 @@ export default function ProjectCarousel3D({
           isHovered ? "opacity-100" : "opacity-0"
         }`}
       >
-        <div className="bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 shadow-2xl shadow-black/30">
+        <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 shadow-2xl shadow-black/30">
           <h3 className={"text-3xl font-bold mb-2 text-shadow-lg"}>
             {projects[focusedIndex]?.title}
           </h3>
@@ -705,7 +709,7 @@ export default function ProjectCarousel3D({
             className={`w-3 h-3 rounded-full transition-all duration-300 pointer-events-auto ${
               index === focusedIndex
                 ? "bg-blue-400 scale-125 shadow-lg shadow-blue-400/50"
-                : "bg-slate-500/50 hover:bg-slate-400"
+                : "bg-gray-500/50 hover:bg-gray-400"
             }`}
             onClick={(e) => {
               e.stopPropagation();
