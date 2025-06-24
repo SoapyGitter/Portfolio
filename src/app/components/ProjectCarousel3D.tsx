@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import * as THREE from "three";
 import { Project } from "../types";
 import { useResponsive } from "../hooks/useResponsive";
+import { useTheme } from "../providers/ThemeProvider";
 import {
   EffectComposer,
   RenderPass,
@@ -30,6 +31,7 @@ export default function ProjectCarousel3D({
   rotationSpeed,
 }: ProjectCarousel3DProps) {
   const { isMobile } = useResponsive();
+  const { theme } = useTheme();
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -72,13 +74,20 @@ export default function ProjectCarousel3D({
 
       // Card Background
       const gradient = ctx.createLinearGradient(0, 0, 0, height);
-      gradient.addColorStop(0, "#1d243a");
-      gradient.addColorStop(1, "#111827");
+      if (theme === 'light') {
+        gradient.addColorStop(0, "#f8fafc");
+        gradient.addColorStop(1, "#e2e8f0");
+      } else {
+        gradient.addColorStop(0, "#1d243a");
+        gradient.addColorStop(1, "#111827");
+      }
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
       // Subtle grid pattern
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+      ctx.strokeStyle = theme === 'light' 
+        ? "rgba(0, 0, 0, 0.05)" 
+        : "rgba(255, 255, 255, 0.05)";
       ctx.lineWidth = 0.5;
       for (let i = 0; i < width; i += 20) {
         ctx.beginPath();
@@ -94,7 +103,9 @@ export default function ProjectCarousel3D({
       }
 
       // Scan lines
-      ctx.strokeStyle = "rgba(100, 150, 255, 0.08)";
+      ctx.strokeStyle = theme === 'light'
+        ? "rgba(59, 130, 246, 0.08)"
+        : "rgba(100, 150, 255, 0.08)";
       ctx.lineWidth = 1;
       for (let y = 0; y < height; y += 3) {
         ctx.beginPath();
@@ -112,8 +123,13 @@ export default function ProjectCarousel3D({
         height / 2,
         width / 2 + 150
       );
-      vignetteGradient.addColorStop(0, "rgba(29, 36, 58, 0)");
-      vignetteGradient.addColorStop(1, "rgba(17, 24, 39, 0.6)");
+      if (theme === 'light') {
+        vignetteGradient.addColorStop(0, "rgba(248, 250, 252, 0)");
+        vignetteGradient.addColorStop(1, "rgba(226, 232, 240, 0.6)");
+      } else {
+        vignetteGradient.addColorStop(0, "rgba(29, 36, 58, 0)");
+        vignetteGradient.addColorStop(1, "rgba(17, 24, 39, 0.6)");
+      }
       ctx.fillStyle = vignetteGradient;
       ctx.fillRect(0, 0, width, height);
 
@@ -123,7 +139,9 @@ export default function ProjectCarousel3D({
       ctx.lineWidth = cornerLineWidth;
       ctx.strokeStyle = isActive
         ? "rgba(96, 165, 250, 0.7)"
-        : "rgba(55, 65, 81, 0.6)";
+        : theme === 'light' 
+          ? "rgba(100, 116, 139, 0.6)"
+          : "rgba(55, 65, 81, 0.6)";
 
       const p = cornerLineWidth / 2; // padding
       // Top-left
@@ -152,7 +170,7 @@ export default function ProjectCarousel3D({
       ctx.stroke();
 
       // Border with potential glow
-      ctx.strokeStyle = isActive ? "#60a5fa" : "#374151";
+      ctx.strokeStyle = isActive ? "#60a5fa" : theme === 'light' ? "#64748b" : "#374151";
       ctx.lineWidth = 1.5;
       if (isActive) {
         ctx.shadowColor = "#60a5fa";
@@ -161,18 +179,18 @@ export default function ProjectCarousel3D({
       ctx.shadowBlur = 0;
 
       // Content
-      ctx.fillStyle = "#f9fafb";
+      ctx.fillStyle = theme === 'light' ? "#1f2937" : "#f9fafb";
       ctx.font = `bold ${isMobile ? '28px' : '38px'} 'Segoe UI', Arial, sans-serif`;
       ctx.textAlign = "center";
       
       // Text outline for better visibility
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.7)";
+      ctx.strokeStyle = theme === 'light' ? "rgba(255, 255, 255, 0.8)" : "rgba(0, 0, 0, 0.7)";
       ctx.lineWidth = isMobile ? 4 : 6;
       ctx.lineJoin = "round";
       ctx.strokeText(project.title, width / 2, isMobile ? 55 : 75);
       ctx.fillText(project.title, width / 2, isMobile ? 55 : 75);
 
-      ctx.fillStyle = "#d1d5db";
+      ctx.fillStyle = theme === 'light' ? "#4b5563" : "#d1d5db";
       ctx.font = `${isMobile ? '14px' : '18px'} 'Segoe UI', Arial, sans-serif`;
       
       ctx.lineWidth = isMobile ? 3 : 4; // Thinner outline for description
@@ -198,7 +216,7 @@ export default function ProjectCarousel3D({
       ctx.fillText(trimmedLine, width / 2, y);
 
       if (project.technologies?.length) {
-        ctx.fillStyle = "#9ca3af";
+        ctx.fillStyle = theme === 'light' ? "#6b7280" : "#9ca3af";
         ctx.font = `${isMobile ? '12px' : '14px'} 'Segoe UI', Arial, sans-serif`;
         const techText = project.technologies.slice(0, 4).join("  •  ");
         ctx.fillText(techText, width / 2, height - (isMobile ? 55 : 85));
@@ -211,7 +229,7 @@ export default function ProjectCarousel3D({
         const buttonHeight = isMobile ? 30 : 40;
         const borderRadius = 8;
 
-        ctx.fillStyle = isActive ? "#3b82f6" : "#374151";
+        ctx.fillStyle = isActive ? "#3b82f6" : theme === 'light' ? "#64748b" : "#374151";
         if (isActive) {
           ctx.shadowColor = "#3b82f6";
         }
@@ -236,7 +254,7 @@ export default function ProjectCarousel3D({
 
       return new THREE.CanvasTexture(canvas);
     },
-    [isMobile]
+    [isMobile, theme]
   );
 
   const updateCardTextures = useCallback(
@@ -658,7 +676,11 @@ export default function ProjectCarousel3D({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900/50 to-gray-800/50" />
+      <div className={`absolute inset-0 bg-gradient-to-br ${
+        theme === 'light' 
+          ? 'from-slate-50/50 to-slate-100/50' 
+          : 'from-gray-900/50 to-gray-800/50'
+      }`} />
 
       <div className="absolute inset-0 z-10 cursor-pointer"
         ref={mountRef}
@@ -667,8 +689,16 @@ export default function ProjectCarousel3D({
       />
 
       {/* Blur overlays to blend edges */}
-      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-gray-900 via-gray-900/80 to-transparent z-10 pointer-events-none" />
-      <div className="absolute inset-x-0 bottom-0 h-60 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-10 pointer-events-none" />
+      <div className={`absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${
+        theme === 'light'
+          ? 'from-slate-50 via-slate-50/80 to-transparent'
+          : 'from-gray-900 via-gray-900/80 to-transparent'
+      } z-10 pointer-events-none`} />
+      <div className={`absolute inset-x-0 bottom-0 h-60 bg-gradient-to-t ${
+        theme === 'light'
+          ? 'from-slate-50 via-slate-50/80 to-transparent'
+          : 'from-gray-900 via-gray-900/80 to-transparent'
+      } z-10 pointer-events-none`} />
 
       {/* Navigation Arrows */}
       <button
@@ -677,13 +707,21 @@ export default function ProjectCarousel3D({
             (prev) => (prev - 1 + projects.length) % projects.length
           )
         }
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors"
+        className={`absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full transition-colors ${
+          theme === 'light'
+            ? 'bg-white/20 text-gray-800 hover:bg-white/40'
+            : 'bg-black/20 text-white hover:bg-black/40'
+        }`}
       >
         <ChevronLeft size={32} />
       </button>
       <button
         onClick={() => setFocusedIndex((prev) => (prev + 1) % projects.length)}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors"
+        className={`absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full transition-colors ${
+          theme === 'light'
+            ? 'bg-white/20 text-gray-800 hover:bg-white/40'
+            : 'bg-black/20 text-white hover:bg-black/40'
+        }`}
       >
         <ChevronRight size={32} />
       </button>
