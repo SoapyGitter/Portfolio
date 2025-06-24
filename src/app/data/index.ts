@@ -5,7 +5,7 @@ export const projects: Project[] = [
     title: "Forest Friend",
     description:
       "Volunteer web application to plant trees in Georgia online or physically",
-    link: "#",
+    link: "https://forestfriend.ge/",
     technologies: ["Angular", "SEO", "Angular Universal", "TypeScript"],
   },
   {

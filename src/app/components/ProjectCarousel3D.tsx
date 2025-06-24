@@ -90,31 +90,89 @@ export default function ProjectCarousel3D({
         ctx.stroke();
       }
 
-      // Active Glow
-      if (isActive) {
-        ctx.shadowColor = "#60a5fa";
-        ctx.shadowBlur = 40;
+      // Scan lines
+      ctx.strokeStyle = "rgba(100, 150, 255, 0.08)";
+      ctx.lineWidth = 1;
+      for (let y = 0; y < height; y += 3) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
       }
 
-      // Border
+      // Vignette
+      const vignetteGradient = ctx.createRadialGradient(
+        width / 2,
+        height / 2,
+        height / 3,
+        width / 2,
+        height / 2,
+        width / 2 + 150
+      );
+      vignetteGradient.addColorStop(0, "rgba(29, 36, 58, 0)");
+      vignetteGradient.addColorStop(1, "rgba(17, 24, 39, 0.6)");
+      ctx.fillStyle = vignetteGradient;
+      ctx.fillRect(0, 0, width, height);
+
+      // Corner brackets
+      const cornerSize = 25;
+      const cornerLineWidth = 3;
+      ctx.lineWidth = cornerLineWidth;
+      ctx.strokeStyle = isActive
+        ? "rgba(96, 165, 250, 0.7)"
+        : "rgba(55, 65, 81, 0.6)";
+
+      const p = cornerLineWidth / 2; // padding
+      // Top-left
+      ctx.beginPath();
+      ctx.moveTo(p + cornerSize, p);
+      ctx.lineTo(p, p);
+      ctx.lineTo(p, p + cornerSize);
+      ctx.stroke();
+      // Top-right
+      ctx.beginPath();
+      ctx.moveTo(width - p - cornerSize, p);
+      ctx.lineTo(width - p, p);
+      ctx.lineTo(width - p, p + cornerSize);
+      ctx.stroke();
+      // Bottom-left
+      ctx.beginPath();
+      ctx.moveTo(p + cornerSize, height - p);
+      ctx.lineTo(p, height - p);
+      ctx.lineTo(p, height - p - cornerSize);
+      ctx.stroke();
+      // Bottom-right
+      ctx.beginPath();
+      ctx.moveTo(width - p - cornerSize, height - p);
+      ctx.lineTo(width - p, height - p);
+      ctx.lineTo(width - p, height - p - cornerSize);
+      ctx.stroke();
+
+      // Border with potential glow
       ctx.strokeStyle = isActive ? "#60a5fa" : "#374151";
-      ctx.lineWidth = 4;
-      ctx.strokeRect(2, 2, width - 4, height - 4);
+      ctx.lineWidth = 1.5;
+      if (isActive) {
+        ctx.shadowColor = "#60a5fa";
+        ctx.shadowBlur = 15;
+      }
+      ctx.strokeRect(0, 0, width, height);
       ctx.shadowBlur = 0;
 
       // Content
       ctx.fillStyle = "#f9fafb";
       ctx.font = "bold 38px 'Segoe UI', Arial, sans-serif";
       ctx.textAlign = "center";
+      ctx.shadowColor = "rgba(0,0,0,0.7)";
+      ctx.shadowBlur = 8;
       ctx.fillText(project.title, width / 2, 75);
 
       ctx.fillStyle = "#d1d5db";
       ctx.font = "18px 'Segoe UI', Arial, sans-serif";
+      ctx.shadowBlur = 6;
       const words = project.description.split(" ");
       const maxWidth = width - 80;
       let line = "";
       let y = 125;
-
       words.forEach((word) => {
         const testLine = line + word + " ";
         if (ctx.measureText(testLine).width > maxWidth && line.length > 0) {
@@ -126,6 +184,7 @@ export default function ProjectCarousel3D({
         }
       });
       ctx.fillText(line.trim(), width / 2, y);
+      ctx.shadowBlur = 0;
 
       if (project.technologies?.length) {
         ctx.fillStyle = "#9ca3af";
@@ -138,55 +197,30 @@ export default function ProjectCarousel3D({
       const buttonY = height - 65;
       const buttonWidth = 150;
       const buttonHeight = 40;
-      const borderRadius = 20;
+      const borderRadius = 8;
 
       ctx.fillStyle = isActive ? "#3b82f6" : "#374151";
+      if (isActive) {
+        ctx.shadowColor = "#3b82f6";
+        ctx.shadowBlur = 15;
+      }
       ctx.beginPath();
-      ctx.moveTo(width / 2 - buttonWidth / 2 + borderRadius, buttonY);
-      ctx.lineTo(width / 2 + buttonWidth / 2 - borderRadius, buttonY);
-      ctx.arcTo(
-        width / 2 + buttonWidth / 2,
-        buttonY,
-        width / 2 + buttonWidth / 2,
-        buttonY + borderRadius,
-        borderRadius
-      );
-      ctx.lineTo(
-        width / 2 + buttonWidth / 2,
-        buttonY + buttonHeight - borderRadius
-      );
-      ctx.arcTo(
-        width / 2 + buttonWidth / 2,
-        buttonY + buttonHeight,
-        width / 2 + buttonWidth / 2 - borderRadius,
-        buttonY + buttonHeight,
-        borderRadius
-      );
-      ctx.lineTo(
-        width / 2 - buttonWidth / 2 + borderRadius,
-        buttonY + buttonHeight
-      );
-      ctx.arcTo(
-        width / 2 - buttonWidth / 2,
-        buttonY + buttonHeight,
-        width / 2 - buttonWidth / 2,
-        buttonY + buttonHeight - borderRadius,
-        borderRadius
-      );
-      ctx.lineTo(width / 2 - buttonWidth / 2, buttonY + borderRadius);
-      ctx.arcTo(
+      ctx.roundRect(
         width / 2 - buttonWidth / 2,
         buttonY,
-        width / 2 - buttonWidth / 2 + borderRadius,
-        buttonY,
+        buttonWidth,
+        buttonHeight,
         borderRadius
       );
-      ctx.closePath();
       ctx.fill();
+      ctx.shadowBlur = 0;
 
       ctx.fillStyle = "#ffffff";
       ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
+      ctx.shadowColor = "rgba(0,0,0,0.5)";
+      ctx.shadowBlur = 5;
       ctx.fillText("View Project", width / 2, buttonY + 25);
+      ctx.shadowBlur = 0;
 
       return new THREE.CanvasTexture(canvas);
     },
@@ -211,9 +245,7 @@ export default function ProjectCarousel3D({
   );
 
   useEffect(() => {
-    if (focusedIndex !== stateRef.current.focusedIndex) {
-      updateCardTextures(focusedIndex);
-    }
+    updateCardTextures(focusedIndex);
   }, [focusedIndex, updateCardTextures]);
 
   const setTargetRotationByIndex = useCallback(
@@ -277,7 +309,7 @@ export default function ProjectCarousel3D({
       0.1,
       1000
     );
-    camera.position.set(0, 2, 18);
+    camera.position.set(55, 55, 18);
     cameraRef.current = camera;
 
     const composer = new EffectComposer(renderer);
@@ -311,18 +343,19 @@ export default function ProjectCarousel3D({
     scene.add(spot);
 
     const group = new THREE.Group();
+    group.position.y = 5;
     carouselGroupRef.current = group;
     scene.add(group);
 
     cardMeshesRef.current = projects.map((project, index) => {
       const texture = createCardTexture(project, index === 0);
-      const geometry = new THREE.PlaneGeometry(4.8, 3);
+      const geometry = new THREE.PlaneGeometry(5.76, 3.6);
       const material = new THREE.MeshStandardMaterial({
         map: texture,
         transparent: true,
         emissive: "#ffffff",
         emissiveMap: texture,
-        emissiveIntensity: 0.05,
+        emissiveIntensity: 0.1,
       });
       const mesh = new THREE.Mesh(geometry, material);
       mesh.castShadow = true;
@@ -384,8 +417,8 @@ export default function ProjectCarousel3D({
       camera.position.x +=
         (mouseRef.current.x * 0.5 - camera.position.x) * 0.05;
       camera.position.y +=
-        (mouseRef.current.y * 0.5 + 2 - camera.position.y) * 0.05;
-      camera.lookAt(0, 0, 0);
+        (mouseRef.current.y * 0.5 + 6 - camera.position.y) * 0.05 - 0.05;
+      camera.lookAt(0, 5, 0);
 
       let minDistance = Infinity;
       let closestMesh: THREE.Mesh | null = null;
@@ -525,15 +558,14 @@ export default function ProjectCarousel3D({
   return (
     <div
       className="relative w-full h-full min-h-[600px] overflow-hidden"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 to-slate-800/50" />
 
-      <div
+      <div className="absolute inset-0 z-10 cursor-pointer"
         ref={mountRef}
-        className="relative w-full h-full z-10 cursor-pointer"
         onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
         onClick={handleClick}
       />
 
@@ -579,6 +611,21 @@ export default function ProjectCarousel3D({
               </span>
             ))}
           </div>
+          {projects[focusedIndex]?.link &&
+            projects[focusedIndex].link !== "#" && (
+              <div className="mt-6">
+                <button
+                  onClick={() => {
+                    if (projects[focusedIndex].link) {
+                      window.open(projects[focusedIndex].link, "_blank");
+                    }
+                  }}
+                  className="pointer-events-auto inline-block rounded-lg bg-blue-500 px-6 py-2 text-sm font-semibold text-white shadow-md transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+                >
+                  View Project
+                </button>
+              </div>
+            )}
         </div>
       </div>
 
