@@ -67,69 +67,126 @@ export default function ProjectCarousel3D({
       canvas.width = width;
       canvas.height = height;
 
+      // Card Background
       const gradient = ctx.createLinearGradient(0, 0, 0, height);
-      gradient.addColorStop(0, "#1e293b");
-      gradient.addColorStop(1, "#0f172a");
+      gradient.addColorStop(0, "#1d243a");
+      gradient.addColorStop(1, "#111827");
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
-      if (isActive) {
-        ctx.shadowColor = "#3b82f6";
-        ctx.shadowBlur = 30;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 0;
+      // Subtle grid pattern
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < width; i += 20) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, height);
+        ctx.stroke();
+      }
+      for (let i = 0; i < height; i += 20) {
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(width, i);
+        ctx.stroke();
       }
 
-      ctx.strokeStyle = isActive ? "#3b82f6" : "#475569";
+      // Active Glow
+      if (isActive) {
+        ctx.shadowColor = "#60a5fa";
+        ctx.shadowBlur = 40;
+      }
+
+      // Border
+      ctx.strokeStyle = isActive ? "#60a5fa" : "#374151";
       ctx.lineWidth = 4;
       ctx.strokeRect(2, 2, width - 4, height - 4);
       ctx.shadowBlur = 0;
 
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 36px Arial";
+      // Content
+      ctx.fillStyle = "#f9fafb";
+      ctx.font = "bold 38px 'Segoe UI', Arial, sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText(project.title, width / 2, 80);
+      ctx.fillText(project.title, width / 2, 75);
 
-      ctx.fillStyle = "#e2e8f0";
-      ctx.font = "20px Arial";
+      ctx.fillStyle = "#d1d5db";
+      ctx.font = "18px 'Segoe UI', Arial, sans-serif";
       const words = project.description.split(" ");
-      const maxWidth = width - 60;
+      const maxWidth = width - 80;
       let line = "";
-      let y = 130;
+      let y = 125;
 
       words.forEach((word) => {
         const testLine = line + word + " ";
-        if (ctx.measureText(testLine).width > maxWidth) {
-          ctx.fillText(line, width / 2, y);
+        if (ctx.measureText(testLine).width > maxWidth && line.length > 0) {
+          ctx.fillText(line.trim(), width / 2, y);
           line = word + " ";
-          y += 28;
+          y += 26;
         } else {
           line = testLine;
         }
       });
-      ctx.fillText(line, width / 2, y);
+      ctx.fillText(line.trim(), width / 2, y);
 
       if (project.technologies?.length) {
-        ctx.fillStyle = "#94a3b8";
-        ctx.font = "16px Arial";
-        const techText = project.technologies.slice(0, 3).join(" • ");
-        ctx.fillText(techText, width / 2, y + 40);
+        ctx.fillStyle = "#9ca3af";
+        ctx.font = "14px 'Segoe UI', Arial, sans-serif";
+        const techText = project.technologies.slice(0, 4).join("  •  ");
+        ctx.fillText(techText, width / 2, height - 85);
       }
 
-      const buttonY = height - 60;
-      const buttonWidth = 140;
-      const buttonHeight = 35;
-      ctx.fillStyle = isActive ? "#3b82f6" : "#475569";
-      ctx.fillRect(
-        (width - buttonWidth) / 2,
+      // Button
+      const buttonY = height - 65;
+      const buttonWidth = 150;
+      const buttonHeight = 40;
+      const borderRadius = 20;
+
+      ctx.fillStyle = isActive ? "#3b82f6" : "#374151";
+      ctx.beginPath();
+      ctx.moveTo(width / 2 - buttonWidth / 2 + borderRadius, buttonY);
+      ctx.lineTo(width / 2 + buttonWidth / 2 - borderRadius, buttonY);
+      ctx.arcTo(
+        width / 2 + buttonWidth / 2,
         buttonY,
-        buttonWidth,
-        buttonHeight
+        width / 2 + buttonWidth / 2,
+        buttonY + borderRadius,
+        borderRadius
       );
+      ctx.lineTo(
+        width / 2 + buttonWidth / 2,
+        buttonY + buttonHeight - borderRadius
+      );
+      ctx.arcTo(
+        width / 2 + buttonWidth / 2,
+        buttonY + buttonHeight,
+        width / 2 + buttonWidth / 2 - borderRadius,
+        buttonY + buttonHeight,
+        borderRadius
+      );
+      ctx.lineTo(
+        width / 2 - buttonWidth / 2 + borderRadius,
+        buttonY + buttonHeight
+      );
+      ctx.arcTo(
+        width / 2 - buttonWidth / 2,
+        buttonY + buttonHeight,
+        width / 2 - buttonWidth / 2,
+        buttonY + buttonHeight - borderRadius,
+        borderRadius
+      );
+      ctx.lineTo(width / 2 - buttonWidth / 2, buttonY + borderRadius);
+      ctx.arcTo(
+        width / 2 - buttonWidth / 2,
+        buttonY,
+        width / 2 - buttonWidth / 2 + borderRadius,
+        buttonY,
+        borderRadius
+      );
+      ctx.closePath();
+      ctx.fill();
 
       ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 18px Arial";
-      ctx.fillText("Explore", width / 2, buttonY + 23);
+      ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
+      ctx.fillText("View Project", width / 2, buttonY + 25);
 
       return new THREE.CanvasTexture(canvas);
     },
@@ -228,9 +285,9 @@ export default function ProjectCarousel3D({
 
     const bloomEffect = new BloomEffect({
       blendFunction: BlendFunction.ADD,
-      intensity: 0.7,
-      luminanceThreshold: 0.15,
-      luminanceSmoothing: 0.2,
+      intensity: 0.9,
+      luminanceThreshold: 0.2,
+      luminanceSmoothing: 0.3,
     });
     const bokehEffect = new BokehEffect({
       focus: 20,
@@ -248,7 +305,7 @@ export default function ProjectCarousel3D({
     dirLight.castShadow = true;
     scene.add(dirLight);
 
-    const spot = new THREE.SpotLight(0x3b82f6, 50, 20, Math.PI / 8, 0.5, 1);
+    const spot = new THREE.SpotLight(0x60a5fa, 80, 25, Math.PI / 7, 0.4, 1.5);
     spot.castShadow = true;
     spotLightRef.current = spot;
     scene.add(spot);
@@ -295,10 +352,10 @@ export default function ProjectCarousel3D({
     const particles = new THREE.Points(
       particleGeometry,
       new THREE.PointsMaterial({
-        color: 0x555555,
-        size: 0.05,
+        color: 0x60a5fa,
+        size: 0.06,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.5,
       })
     );
     particlesRef.current = particles;
@@ -499,39 +556,41 @@ export default function ProjectCarousel3D({
       </button>
 
       <div
-        className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 text-center text-white px-4 pointer-events-none transition-opacity duration-500 ${
+        className={`absolute bottom-20 left-1/2 transform -translate-x-1/2 z-20 text-center text-white px-4 pointer-events-none transition-opacity duration-500 w-full max-w-2xl ${
           isHovered ? "opacity-100" : "opacity-0"
         }`}
       >
-        <h3 className={`${"text-2xl"} font-bold mb-1 text-shadow`}>
-          {projects[focusedIndex]?.title}
-        </h3>
-        <p
-          className={`${"text-sm"} text-gray-300 max-w-md mx-auto mb-3 text-shadow`}
-        >
-          {projects[focusedIndex]?.description}
-        </p>
-        <div className="flex justify-center space-x-1 flex-wrap">
-          {projects[focusedIndex]?.technologies?.slice(0, 4).map((tech) => (
-            <span
-              key={tech}
-              className={`px-2 py-1 bg-blue-500/20 text-blue-300 ${"text-xs"} rounded-full border border-blue-500/30 mb-1`}
-            >
-              {tech}
-            </span>
-          ))}
+        <div className="bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 shadow-2xl shadow-black/30">
+          <h3 className={"text-3xl font-bold mb-2 text-shadow-lg"}>
+            {projects[focusedIndex]?.title}
+          </h3>
+          <p
+            className={"text-base text-gray-300 max-w-xl mx-auto mb-4 text-shadow"}
+          >
+            {projects[focusedIndex]?.description}
+          </p>
+          <div className="flex justify-center items-center flex-wrap gap-2">
+            {projects[focusedIndex]?.technologies?.slice(0, 5).map((tech) => (
+              <span
+                key={tech}
+                className="px-3 py-1 bg-sky-500/10 text-sky-300 text-xs rounded-full border border-sky-500/20"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Navigation dots */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 flex space-x-2">
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex space-x-3">
         {projects.map((_, index) => (
           <button
             key={index}
-            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 pointer-events-auto ${
+            className={`w-3 h-3 rounded-full transition-all duration-300 pointer-events-auto ${
               index === focusedIndex
-                ? "bg-blue-500 scale-125"
-                : "bg-gray-400/50"
+                ? "bg-blue-400 scale-125 shadow-lg shadow-blue-400/50"
+                : "bg-slate-500/50 hover:bg-slate-400"
             }`}
             onClick={(e) => {
               e.stopPropagation();
