@@ -50,6 +50,7 @@ export default function ProjectCarousel3D({
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
+  
   const stateRef = useRef({
     isHovered,
     autoRotate,
