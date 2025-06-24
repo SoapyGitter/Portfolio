@@ -29,6 +29,7 @@ export default function ProjectCarousel3D({
   radius,
   rotationSpeed,
 }: ProjectCarousel3DProps) {
+  const { isMobile } = useResponsive();
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -64,8 +65,8 @@ export default function ProjectCarousel3D({
       const ctx = canvas.getContext("2d");
       if (!ctx) return null;
 
-      const width = 512;
-      const height = 320;
+      const width = isMobile ? 400 : 512;
+      const height = isMobile ? 250 : 320;
       canvas.width = width;
       canvas.height = height;
 
@@ -161,24 +162,25 @@ export default function ProjectCarousel3D({
 
       // Content
       ctx.fillStyle = "#f9fafb";
-      ctx.font = "bold 38px 'Segoe UI', Arial, sans-serif";
+      ctx.font = `bold ${isMobile ? '28px' : '38px'} 'Segoe UI', Arial, sans-serif`;
       ctx.textAlign = "center";
       
       // Text outline for better visibility
       ctx.strokeStyle = "rgba(0, 0, 0, 0.7)";
-      ctx.lineWidth = 6;
+      ctx.lineWidth = isMobile ? 4 : 6;
       ctx.lineJoin = "round";
-      ctx.strokeText(project.title, width / 2, 75);
-      ctx.fillText(project.title, width / 2, 75);
+      ctx.strokeText(project.title, width / 2, isMobile ? 55 : 75);
+      ctx.fillText(project.title, width / 2, isMobile ? 55 : 75);
 
       ctx.fillStyle = "#d1d5db";
-      ctx.font = "18px 'Segoe UI', Arial, sans-serif";
+      ctx.font = `${isMobile ? '14px' : '18px'} 'Segoe UI', Arial, sans-serif`;
       
-      ctx.lineWidth = 4; // Thinner outline for description
+      ctx.lineWidth = isMobile ? 3 : 4; // Thinner outline for description
       const words = project.description.split(" ");
-      const maxWidth = width - 80;
+      const maxWidth = width - (isMobile ? 60 : 80);
       let line = "";
-      let y = 125;
+      let y = isMobile ? 90 : 125;
+      const lineHeight = isMobile ? 20 : 26;
       words.forEach((word) => {
         const testLine = line + word + " ";
         if (ctx.measureText(testLine).width > maxWidth && line.length > 0) {
@@ -186,7 +188,7 @@ export default function ProjectCarousel3D({
           ctx.strokeText(trimmedLine, width / 2, y);
           ctx.fillText(trimmedLine, width / 2, y);
           line = word + " ";
-          y += 26;
+          y += lineHeight;
         } else {
           line = testLine;
         }
@@ -197,16 +199,16 @@ export default function ProjectCarousel3D({
 
       if (project.technologies?.length) {
         ctx.fillStyle = "#9ca3af";
-        ctx.font = "14px 'Segoe UI', Arial, sans-serif";
+        ctx.font = `${isMobile ? '12px' : '14px'} 'Segoe UI', Arial, sans-serif`;
         const techText = project.technologies.slice(0, 4).join("  •  ");
-        ctx.fillText(techText, width / 2, height - 85);
+        ctx.fillText(techText, width / 2, height - (isMobile ? 55 : 85));
       }
 
       // Button
       if (project.link && project.link !== "#") {
-        const buttonY = height - 65;
-        const buttonWidth = 150;
-        const buttonHeight = 40;
+        const buttonY = height - (isMobile ? 35 : 65);
+        const buttonWidth = isMobile ? 120 : 150;
+        const buttonHeight = isMobile ? 30 : 40;
         const borderRadius = 8;
 
         ctx.fillStyle = isActive ? "#3b82f6" : "#374151";
@@ -225,16 +227,16 @@ export default function ProjectCarousel3D({
         ctx.shadowBlur = 0;
 
         ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
+        ctx.font = `bold ${isMobile ? '14px' : '16px'} 'Segoe UI', Arial, sans-serif`;
         ctx.shadowColor = "rgba(0,0,0,0.5)";
         ctx.shadowBlur = 5;
-        ctx.fillText("View Project", width / 2, buttonY + 25);
+        ctx.fillText("View Project", width / 2, buttonY + (isMobile ? 20 : 25));
         ctx.shadowBlur = 0;
       }
 
       return new THREE.CanvasTexture(canvas);
     },
-    []
+    [isMobile]
   );
 
   const updateCardTextures = useCallback(
@@ -379,7 +381,9 @@ export default function ProjectCarousel3D({
 
     cardMeshesRef.current = projects.map((project, index) => {
       const texture = createCardTexture(project, index === 0);
-      const geometry = new THREE.PlaneGeometry(5.76, 3.6);
+      const cardWidth = isMobile ? 2.0 : 5.76;
+      const cardHeight = isMobile ? 1.5 : 3.6;
+      const geometry = new THREE.PlaneGeometry(cardWidth, cardHeight);
       const material = new THREE.MeshStandardMaterial({
         map: texture,
         transparent: true,
