@@ -11,6 +11,8 @@ import {
   EffectPass,
   BlendFunction,
   BokehEffect,
+  VignetteEffect,
+  ChromaticAberrationEffect,
 } from "postprocessing";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -315,22 +317,42 @@ export default function ProjectCarousel3D({
     cameraRef.current = camera;
 
     const composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, camera));
-
     const bloomEffect = new BloomEffect({
       blendFunction: BlendFunction.ADD,
-      intensity: 0.6,
-      luminanceThreshold: 0.2,
-      luminanceSmoothing: 0.3,
+      intensity: 0.75,
+      luminanceThreshold: 0.25,
+      luminanceSmoothing: 0.4,
+      mipmapBlur: true,
     });
+
     const bokehEffect = new BokehEffect({
       focus: 20,
-      dof: 0.002,
-      aperture: 0.001,
-      maxBlur: 0.008,
+      dof: 0.01,
+      aperture: 0.05,
+      maxBlur: 0.015,
     });
     bokehEffectRef.current = bokehEffect;
-    composer.addPass(new EffectPass(camera, bloomEffect, bokehEffect));
+
+    const vignetteEffect = new VignetteEffect({
+      eskil: false,
+      offset: 0.15,
+      darkness: 0.6,
+    });
+
+    const chromaticAberrationEffect = new ChromaticAberrationEffect({
+      offset: new THREE.Vector2(0.0005, 0.0005),
+      radialModulation: false,
+      modulationOffset: 0.0,
+    });
+
+    composer.addPass(new RenderPass(scene, camera));
+
+    composer.addPass(new EffectPass(camera, bloomEffect));
+    composer.addPass(new EffectPass(camera, bokehEffect));
+    composer.addPass(
+      new EffectPass(camera, vignetteEffect, chromaticAberrationEffect)
+    );
+
     composerRef.current = composer;
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.2));
