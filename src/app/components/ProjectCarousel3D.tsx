@@ -155,7 +155,6 @@ export default function ProjectCarousel3D({
       ctx.lineWidth = 1.5;
       if (isActive) {
         ctx.shadowColor = "#60a5fa";
-        ctx.shadowBlur = 15;
       }
       ctx.strokeRect(0, 0, width, height);
       ctx.shadowBlur = 0;
@@ -164,13 +163,18 @@ export default function ProjectCarousel3D({
       ctx.fillStyle = "#f9fafb";
       ctx.font = "bold 38px 'Segoe UI', Arial, sans-serif";
       ctx.textAlign = "center";
-      ctx.shadowColor = "rgba(0,0,0,0.7)";
-      ctx.shadowBlur = 8;
+      
+      // Text outline for better visibility
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.7)";
+      ctx.lineWidth = 6;
+      ctx.lineJoin = "round";
+      ctx.strokeText(project.title, width / 2, 75);
       ctx.fillText(project.title, width / 2, 75);
 
       ctx.fillStyle = "#d1d5db";
       ctx.font = "18px 'Segoe UI', Arial, sans-serif";
-      ctx.shadowBlur = 6;
+      
+      ctx.lineWidth = 4; // Thinner outline for description
       const words = project.description.split(" ");
       const maxWidth = width - 80;
       let line = "";
@@ -178,15 +182,18 @@ export default function ProjectCarousel3D({
       words.forEach((word) => {
         const testLine = line + word + " ";
         if (ctx.measureText(testLine).width > maxWidth && line.length > 0) {
-          ctx.fillText(line.trim(), width / 2, y);
+          const trimmedLine = line.trim();
+          ctx.strokeText(trimmedLine, width / 2, y);
+          ctx.fillText(trimmedLine, width / 2, y);
           line = word + " ";
           y += 26;
         } else {
           line = testLine;
         }
       });
-      ctx.fillText(line.trim(), width / 2, y);
-      ctx.shadowBlur = 0;
+      const trimmedLine = line.trim();
+      ctx.strokeText(trimmedLine, width / 2, y);
+      ctx.fillText(trimmedLine, width / 2, y);
 
       if (project.technologies?.length) {
         ctx.fillStyle = "#9ca3af";
@@ -205,7 +212,6 @@ export default function ProjectCarousel3D({
         ctx.fillStyle = isActive ? "#3b82f6" : "#374151";
         if (isActive) {
           ctx.shadowColor = "#3b82f6";
-          ctx.shadowBlur = 15;
         }
         ctx.beginPath();
         ctx.roundRect(
@@ -454,7 +460,7 @@ export default function ProjectCarousel3D({
         carouselGroupRef.current!.rotation.y = THREE.MathUtils.lerp(
           rotationY,
           targetRotationY.current,
-          0.1
+          0.05
         );
       } else if (carouselGroupRef.current) {
         carouselGroupRef.current!.rotation.y = targetRotationY.current;
@@ -492,7 +498,7 @@ export default function ProjectCarousel3D({
 
       cardMeshesRef.current.forEach((mesh, index) => {
         const isFocused = index === stateRef.current.focusedIndex;
-        const targetRadius = isFocused ? radius * 1.5 : radius;
+        const targetRadius = isFocused ? radius * 1.25 : radius;
 
         if (mesh.userData.currentRadius === undefined) {
           mesh.userData.currentRadius = radius;
