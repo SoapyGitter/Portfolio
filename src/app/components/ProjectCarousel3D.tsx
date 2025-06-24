@@ -75,8 +75,13 @@ export default function ProjectCarousel3D({
       // Card Background
       const gradient = ctx.createLinearGradient(0, 0, 0, height);
       if (theme === 'light') {
-        gradient.addColorStop(0, "#f8fafc");
-        gradient.addColorStop(1, "#e2e8f0");
+        if (isActive) {
+          gradient.addColorStop(0, "#ffffff");
+          gradient.addColorStop(1, "#ffffff");
+        } else {
+          gradient.addColorStop(0, "#e2e8f0");
+          gradient.addColorStop(1, "#cbd5e1");
+        }
       } else {
         gradient.addColorStop(0, "#1d243a");
         gradient.addColorStop(1, "#111827");
@@ -124,8 +129,13 @@ export default function ProjectCarousel3D({
         width / 2 + 150
       );
       if (theme === 'light') {
-        vignetteGradient.addColorStop(0, "rgba(248, 250, 252, 0)");
-        vignetteGradient.addColorStop(1, "rgba(226, 232, 240, 0.6)");
+        if (isActive) {
+          vignetteGradient.addColorStop(0, "rgba(255, 255, 255, 0)");
+          vignetteGradient.addColorStop(1, "rgba(255, 255, 255, 0.1)");
+        } else {
+          vignetteGradient.addColorStop(0, "rgba(226, 232, 240, 0)");
+          vignetteGradient.addColorStop(1, "rgba(203, 213, 225, 0.6)");
+        }
       } else {
         vignetteGradient.addColorStop(0, "rgba(29, 36, 58, 0)");
         vignetteGradient.addColorStop(1, "rgba(17, 24, 39, 0.6)");
@@ -179,18 +189,18 @@ export default function ProjectCarousel3D({
       ctx.shadowBlur = 0;
 
       // Content
-      ctx.fillStyle = theme === 'light' ? "#1f2937" : "#f9fafb";
+      ctx.fillStyle = theme === 'light' ? "#0f172a" : "#f9fafb";
       ctx.font = `bold ${isMobile ? '28px' : '38px'} 'Segoe UI', Arial, sans-serif`;
       ctx.textAlign = "center";
       
       // Text outline for better visibility
-      ctx.strokeStyle = theme === 'light' ? "rgba(255, 255, 255, 0.8)" : "rgba(0, 0, 0, 0.7)";
+      ctx.strokeStyle = theme === 'light' ? "rgba(255, 255, 255, 0.9)" : "rgba(0, 0, 0, 0.7)";
       ctx.lineWidth = isMobile ? 4 : 6;
       ctx.lineJoin = "round";
       ctx.strokeText(project.title, width / 2, isMobile ? 55 : 75);
       ctx.fillText(project.title, width / 2, isMobile ? 55 : 75);
 
-      ctx.fillStyle = theme === 'light' ? "#4b5563" : "#d1d5db";
+      ctx.fillStyle = theme === 'light' ? "#334155" : "#d1d5db";
       ctx.font = `${isMobile ? '14px' : '18px'} 'Segoe UI', Arial, sans-serif`;
       
       ctx.lineWidth = isMobile ? 3 : 4; // Thinner outline for description
@@ -216,7 +226,7 @@ export default function ProjectCarousel3D({
       ctx.fillText(trimmedLine, width / 2, y);
 
       if (project.technologies?.length) {
-        ctx.fillStyle = theme === 'light' ? "#6b7280" : "#9ca3af";
+        ctx.fillStyle = theme === 'light' ? "#475569" : "#9ca3af";
         ctx.font = `${isMobile ? '12px' : '14px'} 'Segoe UI', Arial, sans-serif`;
         const techText = project.technologies.slice(0, 4).join("  •  ");
         ctx.fillText(techText, width / 2, height - (isMobile ? 55 : 85));
@@ -381,13 +391,25 @@ export default function ProjectCarousel3D({
 
     composerRef.current = composer;
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.2));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    // Theme-aware lighting setup
+    const ambientIntensity = theme === 'light' ? 0.8 : 0.2;
+    const directionalIntensity = theme === 'light' ? 2.0 : 1.0;
+    const spotIntensity = theme === 'light' ? 80 : 60;
+    
+    scene.add(new THREE.AmbientLight(0xffffff, ambientIntensity));
+    const dirLight = new THREE.DirectionalLight(0xffffff, directionalIntensity);
     dirLight.position.set(5, 10, 7);
     dirLight.castShadow = true;
     scene.add(dirLight);
 
-    const spot = new THREE.SpotLight(0x60a5fa, 60, 25, Math.PI / 7, 0.4, 1.5);
+    // Add additional fill light for light theme
+    if (theme === 'light') {
+      const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+      fillLight.position.set(-5, 5, 5);
+      scene.add(fillLight);
+    }
+
+    const spot = new THREE.SpotLight(0x60a5fa, spotIntensity, 25, Math.PI / 7, 0.4, 1.5);
     spot.castShadow = true;
     spotLightRef.current = spot;
     scene.add(spot);
@@ -402,12 +424,16 @@ export default function ProjectCarousel3D({
       const cardWidth = isMobile ? 2.0 : 5.76;
       const cardHeight = isMobile ? 1.5 : 3.6;
       const geometry = new THREE.PlaneGeometry(cardWidth, cardHeight);
+      // Theme-aware material properties
+      const emissiveIntensity = theme === 'light' ? 0.05 : 0.1;
       const material = new THREE.MeshStandardMaterial({
         map: texture,
         transparent: true,
         emissive: "#ffffff",
         emissiveMap: texture,
-        emissiveIntensity: 0.1,
+        emissiveIntensity: emissiveIntensity,
+        roughness: theme === 'light' ? 0.7 : 0.5,
+        metalness: 0.1,
       });
       const mesh = new THREE.Mesh(geometry, material);
       mesh.castShadow = true;
